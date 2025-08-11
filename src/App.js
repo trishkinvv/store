@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const App = () => {
   const [currentTab, setCurrentTab] = useState('shop');
   const [cart, setCart] = useState([]);
-  const [products] = useState([
+  const [notifications, setNotifications] = useState([]);
+  
+  const products = [
     {
       id: 1,
       name: 'T-shirt',
       price: 1299,
       description: 'Хлопковая футболка премиум качества',
-      image: 'https://via.placeholder.com/300x400/222222/FFFFFF?text=T-Shirt'
+      image: "/images/jeans.jpg"
     },
     {
       id: 2,
@@ -32,11 +34,28 @@ const App = () => {
       description: 'Черная куртка из натуральной кожи',
       image: 'https://via.placeholder.com/300x400/000000/FFFFFF?text=Jacket'
     }
-  ]);
+  ];
 
   const addToCart = (product) => {
     setCart([...cart, product]);
+    
+
+    const newNotification = {
+      id: Date.now(),
+      message: `"${product.name}" добавлен в корзину`,
+    };
+    
+    setNotifications([...notifications, newNotification]);
   };
+
+  useEffect(() => {
+    if (notifications.length > 0) {
+      const timer = setTimeout(() => {
+        setNotifications(notifications.slice(1));
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [notifications]);
 
   const removeFromCart = (productId) => {
     setCart(cart.filter(item => item.id !== productId));
@@ -65,6 +84,17 @@ const App = () => {
       <main style={styles.main}>
         {renderTab()}
       </main>
+      
+      {/* Контейнер для уведомлений */}
+      <div style={styles.notificationContainer}>
+        {notifications.map(notification => (
+          <div key={notification.id} style={styles.notification}>
+            <span style={styles.notificationIcon}>🛒</span>
+            {notification.message}
+          </div>
+        ))}
+      </div>
+      
       <Footer />
     </div>
   );
@@ -207,13 +237,13 @@ const Footer = () => (
   </footer>
 );
 
-// Стили приложения
 const styles = {
   app: {
     backgroundColor: '#121212',
     color: '#FFFFFF',
     minHeight: '100vh',
     fontFamily: "'Roboto', sans-serif",
+    position: 'relative',
   },
   header: {
     backgroundColor: '#1A1A1A',
@@ -292,7 +322,7 @@ const styles = {
     bottom: '0',
     left: '0',
     right: '0',
-    backgroundColor: 'rgba(26, 60, 52, 0.85)', // Темно-зеленый с прозрачностью
+    backgroundColor: 'rgba(26, 60, 52, 0.85)', 
     color: '#FFFFFF',
     padding: '15px',
     textAlign: 'center',
@@ -441,6 +471,40 @@ const styles = {
     gap: '20px',
     marginTop: '15px',
     fontSize: '14px',
+  },
+
+  notificationContainer: {
+    position: 'fixed',
+    bottom: '20px',
+    right: '20px',
+    zIndex: 1000,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px',
+  },
+  notification: {
+    backgroundColor: '#1A3C34',
+    color: 'white',
+    padding: '15px 25px',
+    borderRadius: '4px',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    animation: 'fadeIn 0.3s, fadeOut 0.3s 2.7s',
+    animationFillMode: 'forwards',
+  },
+  notificationIcon: {
+    fontSize: '20px',
+  },
+
+  '@keyframes fadeIn': {
+    from: { opacity: 0, transform: 'translateY(20px)' },
+    to: { opacity: 1, transform: 'translateY(0)' },
+  },
+  '@keyframes fadeOut': {
+    from: { opacity: 1, transform: 'translateY(0)' },
+    to: { opacity: 0, transform: 'translateY(20px)' },
   },
 };
 
